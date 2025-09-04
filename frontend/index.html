@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MonetizaYT - Red Social YouTube</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .auth-section, .dashboard {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: white;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #FF8E53;
+            display: block;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .video-form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .video-list {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .video-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .video-title {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .video-time {
+            color: #FF8E53;
+            font-weight: bold;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        h2, h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">MonetizaYT</div>
+            <div class="subtitle">Red Social de YouTube - Intercambia visualizaciones</div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Sección de Autenticación -->
+            <div id="auth-section" class="auth-section">
+                <h2>Iniciar Sesión / Registrarse</h2>
+                
+                <div id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email:</label>
+                        <input type="email" id="login-email" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Contraseña:</label>
+                        <input type="password" id="login-password" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" onclick="login()">Iniciar Sesión</button>
+                    <button class="btn btn-secondary" onclick="showRegister()">¿No tienes cuenta? Regístrate</button>
+                </div>
+                
+                <div id="register-form" class="hidden">
+                    <div class="form-group">
+                        <label for="register-username">Usuario:</label>
+                        <input type="text" id="register-username" placeholder="tu_usuario">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email:</label>
+                        <input type="email" id="register-email" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Contraseña:</label>
+                        <input type="password" id="register-password" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" onclick="register()">Registrarse</button>
+                    <button class="btn btn-secondary" onclick="showLogin()">¿Ya tienes cuenta? Inicia Sesión</button>
+                </div>
+            </div>
+            
+            <!-- Dashboard -->
+            <div id="dashboard" class="dashboard hidden">
+                <h2>Dashboard</h2>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <span class="stat-number" id="earned-time">0</span>
+                        <div class="stat-label">Minutos Ganados</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="watch-time">0</span>
+                        <div class="stat-label">Minutos a Ver</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="my-videos">0</span>
+                        <div class="stat-label">Mis Videos</div>
+                    </div>
+                </div>
+                
+                <div class="video-form">
+                    <h3>Agregar Video de YouTube</h3>
+                    <div class="form-group">
+                        <input type="text" id="video-url" placeholder="https://www.youtube.com/watch?v=...">
+                    </div>
+                    <button class="btn btn-primary" onclick="addVideo()">Agregar Video</button>
+                </div>
+                
+                <div class="video-list">
+                    <h3>Videos para Ver</h3>
+                    <div id="videos-to-watch">
+                        <!-- Videos se cargarán aquí -->
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

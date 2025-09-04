@@ -1,0 +1,19 @@
+{
+  "name": "monetizayt",
+  "version": "1.0.0",
+  "description": "Red social de YouTube para intercambio de visualizaciones",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm start",
+    "install-deps": "cd backend && npm install && cd ../frontend && npm install",
+    "start": "npm run dev"
+  },
+  "keywords": ["youtube", "social", "desktop", "electron", "videos"],
+  "author": "GLOPEZ1989",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
