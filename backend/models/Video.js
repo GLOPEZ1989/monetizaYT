@@ -1,61 +1,68 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../database');
 
-const videoSchema = new mongoose.Schema({
+const Video = sequelize.define('Video', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   title: {
-    type: String,
-    required: true,
-    trim: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
   youtubeUrl: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
     validate: {
-      validator: function(v) {
-        return /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]+/.test(v);
-      },
-      message: 'Please enter a valid YouTube URL'
+      isUrl: true,
+      isYouTubeUrl(value) {
+        const regex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]+/;
+        if (!regex.test(value)) {
+          throw new Error('Please enter a valid YouTube URL');
+        }
+      }
     }
   },
   videoId: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
   },
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  ownerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
   },
   duration: {
-    type: Number,
-    required: true
+    type: DataTypes.INTEGER,
+    allowNull: false
   },
   views: {
-    type: Number,
-    default: 0
+    type: DataTypes.INTEGER,
+    defaultValue: 0
   },
   watchTime: {
-    type: Number,
-    default: 0
+    type: DataTypes.INTEGER,
+    defaultValue: 0
   },
   description: {
-    type: String,
-    default: ''
+    type: DataTypes.TEXT,
+    defaultValue: ''
   },
   thumbnail: {
-    type: String,
-    default: ''
+    type: DataTypes.STRING,
+    defaultValue: ''
   },
   status: {
-    type: String,
-    enum: ['active', 'paused', 'completed'],
-    default: 'active'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.ENUM('active', 'paused', 'completed'),
+    defaultValue: 'active'
   }
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('Video', videoSchema);
+module.exports = Video;

@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { User } = require('../models');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -12,7 +12,12 @@ router.post('/register', async (req, res) => {
     
     // Verificar si el usuario ya existe
     const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
+      where: {
+        [require('sequelize').Op.or]: [
+          { email },
+          { username }
+        ]
+      }
     });
     
     if (existingUser) {
@@ -22,15 +27,13 @@ router.post('/register', async (req, res) => {
     }
     
     // Crear nuevo usuario
-    const user = new User({
+    const user = await User.create({
       username,
       email,
       password,
       watchTime: 300, // 5 minutos iniciales
       earnedTime: 0
     });
-    
-    await user.save();
     
     res.status(201).json({ 
       message: 'Usuario creado exitosamente' 
@@ -49,7 +52,7 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     
     // Buscar usuario
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(400).json({ 
         message: 'Credenciales inválidas' 
@@ -66,7 +69,7 @@ router.post('/login', async (req, res) => {
     
     // Crear token
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user.id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -74,7 +77,7 @@ router.post('/login', async (req, res) => {
     res.json({
       token,
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email,
         watchTime: user.watchTime,

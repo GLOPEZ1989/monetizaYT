@@ -1,6 +1,5 @@
 const express = require('express');
-const User = require('../models/User');
-const Video = require('../models/Video');
+const { User, Video } = require('../models');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -9,10 +8,12 @@ const router = express.Router();
 router.get('/profile', auth, async (req, res) => {
   try {
     const user = req.user;
-    const videosCount = await Video.countDocuments({ owner: user._id });
+    const videosCount = await Video.count({ 
+      where: { ownerId: user.id } 
+    });
     
     res.json({
-      id: user._id,
+      id: user.id,
       username: user.username,
       email: user.email,
       watchTime: user.watchTime,
@@ -31,19 +32,13 @@ router.put('/stats', auth, async (req, res) => {
   try {
     const { earnedTime, watchTime, totalWatched } = req.body;
     
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        $inc: {
-          earnedTime: earnedTime || 0,
-          totalWatched: totalWatched || 0
-        },
-        $set: {
-          watchTime: watchTime !== undefined ? watchTime : req.user.watchTime
-        }
-      },
-      { new: true }
-    );
+    const user = await User.findByPk(req.user.id);
+    
+    if (earnedTime) user.earnedTime += earnedTime;
+    if (totalWatched) user.totalWatched += totalWatched;
+    if (watchTime !== undefined) user.watchTime = watchTime;
+    
+    const updatedUser = await user.save();
     
     res.json({
       watchTime: updatedUser.watchTime,

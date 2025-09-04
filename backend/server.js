@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
+const { connectDB } = require('./database');
 require('dotenv').config();
 
 const app = express();
@@ -9,18 +9,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/monetizayt', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-mongoose.connection.on('connected', () => {
-  console.log('Connected to MongoDB');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.log('MongoDB connection error:', err);
-});
+// Conectar a la base de datos SQLite
+connectDB();
 
 // Importar rutas
 const authRoutes = require('./routes/auth');

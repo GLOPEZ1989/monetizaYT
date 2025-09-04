@@ -1,6 +1,5 @@
 const express = require('express');
-const Video = require('../models/Video');
-const User = require('../models/User');
+const { Video, User } = require('../models');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -36,7 +35,9 @@ router.post('/', auth, async (req, res) => {
     }
     
     // Verificar si el video ya existe
-    const existingVideo = await Video.findOne({ videoId });
+    const existingVideo = await Video.findOne({ 
+      where: { videoId } 
+    });
     if (existingVideo) {
       return res.status(400).json({ message: 'Este video ya fue agregado' });
     }
@@ -45,21 +46,19 @@ router.post('/', auth, async (req, res) => {
     const videoInfo = getVideoInfo(videoId);
     
     // Crear nuevo video
-    const video = new Video({
+    const video = await Video.create({
       title: videoInfo.title,
       youtubeUrl,
       videoId,
-      owner: req.user._id,
+      ownerId: req.user.id,
       duration: videoInfo.duration,
       thumbnail: videoInfo.thumbnail
     });
     
-    await video.save();
-    
     res.status(201).json({
       message: 'Video agregado exitosamente',
       video: {
-        id: video._id,
+        id: video.id,
         title: video.title,
         duration: video.duration,
         thumbnail: video.thumbnail
@@ -74,13 +73,21 @@ router.post('/', auth, async (req, res) => {
 // Obtener videos para ver (de otros usuarios)
 router.get('/to-watch', auth, async (req, res) => {
   try {
-    const videos = await Video.find({ 
-      owner: { $ne: req.user._id },
-      status: 'active'
-    })
-    .populate('owner', 'username')
-    .sort({ createdAt: -1 })
-    .limit(10);
+    const videos = await Video.findAll({ 
+      where: { 
+        ownerId: {
+          [require('sequelize').Op.ne]: req.user.id
+        },
+        status: 'active'
+      },
+      include: [{
+        model: User,
+        as: 'owner',
+        attributes: ['username']
+      }],
+      order: [['createdAt', 'DESC']],
+      limit: 10
+    });
     
     res.json({ videos });
   } catch (error) {
@@ -92,7 +99,7 @@ router.get('/to-watch', auth, async (req, res) => {
 // Marcar video como visto
 router.post('/:videoId/watched', auth, async (req, res) => {
   try {
-    const video = await Video.findById(req.params.videoId);
+    const video = await Video.findByPk(req.params.videoId);
     
     if (!video) {
       return res.status(404).json({ message: 'Video no encontrado' });
@@ -104,17 +111,15 @@ router.post('/:videoId/watched', auth, async (req, res) => {
     await video.save();
     
     // Actualizar estadísticas del usuario que vio el video
-    await User.findByIdAndUpdate(req.user._id, {
-      $inc: { 
-        totalWatched: video.duration,
-        earnedTime: video.duration 
-      }
-    });
+    const viewer = await User.findByPk(req.user.id);
+    viewer.totalWatched += video.duration;
+    viewer.earnedTime += video.duration;
+    await viewer.save();
     
     // Actualizar estadísticas del propietario del video
-    await User.findByIdAndUpdate(video.owner, {
-      $inc: { watchTime: video.duration }
-    });
+    const owner = await User.findByPk(video.ownerId);
+    owner.watchTime += video.duration;
+    await owner.save();
     
     res.json({ 
       message: 'Video marcado como visto',
@@ -129,8 +134,10 @@ router.post('/:videoId/watched', auth, async (req, res) => {
 // Obtener mis videos
 router.get('/my-videos', auth, async (req, res) => {
   try {
-    const videos = await Video.find({ owner: req.user._id })
-      .sort({ createdAt: -1 });
+    const videos = await Video.findAll({ 
+      where: { ownerId: req.user.id },
+      order: [['createdAt', 'DESC']]
+    });
     
     res.json({ videos });
   } catch (error) {
