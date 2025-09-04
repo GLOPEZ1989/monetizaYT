@@ -13,7 +13,10 @@
       "Bash(mongod:*)",
       "Bash(choco install:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "Bash(node:*)",
+      "WebFetch(domain:www.youtube.com)",
+      "WebFetch(domain:consent.youtube.com)"
     ],
     "deny": [],
     "ask": []

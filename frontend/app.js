@@ -19,10 +19,10 @@ function showRegister() {
 }
 
 async function login() {
-    const email = document.getElementById('login-email').value;
+    const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
     
-    if (!email || !password) {
+    if (!username || !password) {
         alert('Por favor completa todos los campos');
         return;
     }
@@ -33,7 +33,7 @@ async function login() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ username, password })
         });
         
         const data = await response.json();
@@ -114,6 +114,7 @@ async function loadUserData() {
         if (response.ok) {
             updateStats(data);
             loadVideosToWatch();
+            loadMyVideos();
         }
     } catch (error) {
         console.error('Error loading user data:', error);
@@ -151,6 +152,7 @@ async function addVideo() {
             alert('Video agregado exitosamente!');
             document.getElementById('video-url').value = '';
             loadUserData();
+            loadMyVideos(); // Recargar mis videos
         } else {
             alert(data.message || 'Error al agregar video');
         }
@@ -223,6 +225,48 @@ async function watchVideo(videoId, youtubeUrl) {
             console.error('Error marking video as watched:', error);
         }
     }, 2000);
+}
+
+async function loadMyVideos() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`${API_URL}/videos/my-videos`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            displayMyVideos(data.videos);
+        }
+    } catch (error) {
+        console.error('Error loading my videos:', error);
+    }
+}
+
+function displayMyVideos(videos) {
+    const container = document.getElementById('my-videos');
+    
+    if (videos.length === 0) {
+        container.innerHTML = '<p style="color: rgba(255,255,255,0.7);">No tienes videos subidos</p>';
+        return;
+    }
+    
+    container.innerHTML = videos.map(video => `
+        <div class="video-item">
+            <div>
+                <div class="video-title">${video.title}</div>
+                <small style="color: rgba(255,255,255,0.6);">Vistas: ${video.views} | Duración: ${Math.floor(video.duration / 60)}min</small>
+            </div>
+            <div>
+                <span class="video-time">${Math.floor(video.watchTime / 60)}min vistos</span>
+                <button class="btn btn-primary" style="width: auto; padding: 8px 16px; margin-left: 10px;" onclick="window.open('${video.youtubeUrl}', '_blank')">Ver</button>
+            </div>
+        </div>
+    `).join('');
 }
 
 // Verificar si hay token guardado al cargar la página

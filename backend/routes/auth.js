@@ -49,10 +49,10 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
     
     // Buscar usuario
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { username } });
     if (!user) {
       return res.status(400).json({ 
         message: 'Credenciales inválidas' 
